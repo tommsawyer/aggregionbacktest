@@ -90,7 +90,6 @@ describe('Routes', () => {
               expect(res.body._id).to.be.defined;
               expect(res.body.text).to.be.defined;
               expect(res.body.parentComment).to.equal(null);
-              expect(res.body.childComments).to.be.empty;
             });
           })
       });
@@ -123,21 +122,6 @@ describe('Routes', () => {
               expect(res.body._id).to.be.defined;
               expect(res.body.text).to.be.defined;
               expect(res.body.parentComment).to.equal(testComment);
-              expect(res.body.childComments).to.be.empty;
-            });
-          });
-      });
-
-      it('GET /comment/:id with childComments', (done) => {
-        request(app)
-          .get('/comment/' + testComment)
-          .expect(200)
-          .then(res => {
-            check(done, () => {
-              expect(res.body._id).to.equal(testComment);
-              expect(res.body.parentComment).to.equal(null);
-              expect(res.body.childComments).to.be.defined;
-              expect(res.body.childComments.length).to.equal(1);
             });
           });
       });
@@ -150,11 +134,9 @@ describe('Routes', () => {
             check(done, () => {
               expect(res.body.length).to.equal(2);
               expect(res.body[0].text).to.equal('new commentary');
-              expect(res.body[0].childComments.length).to.equal(1);
               expect(res.body[0].parentComment).to.not.be.defined;
 
               expect(res.body[1].text).to.equal('new child commentary');
-              expect(res.body[1].childComments.length).to.be.empty;
               expect(res.body[1].parentComment).to.equal(testComment);
             });
           });

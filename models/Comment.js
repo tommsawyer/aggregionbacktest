@@ -11,36 +11,21 @@ let commentSchema = new mongoose.Schema({
   parentComment: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Comment'
-  },
-
-  childComments: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Comment'
-  }]
+  }
 });
 
-let getSubTreeHeight = (comment) => {
-  if (!comment.childComments.length)
-    return Promise.resolve(1);
+commentSchema.statics.getTreeHeight = function(comment) {
+  comment = comment || {_id: null};
 
-  return Comment.find({_id: {$in: comment.childComments}})
+  return Comment.find({parentComment: comment._id})
     .then(comments => {
-      return Promise.all(comments.map(getSubTreeHeight));
+      if (comments.length === 0)
+        return [-1];
+
+      return Promise.all(comments.map(Comment.getTreeHeight));
     })
     .then(heights => {
       return Math.max.apply(null, heights) + 1;
-    });
-}
-
-commentSchema.statics.getTreeHeight = function() {
-  return Comment.find({parentComment: null})
-    .then(rootComments => {
-       if (!rootComments.length) return [0];
-
-       return Promise.all(rootComments.map(getSubTreeHeight));
-    })
-    .then(heights => {
-      return Math.max.apply(null, heights);
     });
 }
 

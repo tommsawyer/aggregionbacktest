@@ -26,10 +26,7 @@ router.post('/', passport.authenticate('jwt', {session: false}), (req, res, next
         throw new Error('No such parent comment');
       }
 
-      if (!parent) return comment.save();
-
-      return comment.save()
-        .then(newComment => parent.update({$addToSet: {childComments: newComment._id}}));
+      return comment.save();
     })
     .then(() => {
       res.json(comment);
@@ -62,7 +59,5 @@ router.get('/', (req, res, next) => {
     })
     .catch(next);
 });
-
-
 
 module.exports = router;
