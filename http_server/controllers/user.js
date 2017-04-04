@@ -31,7 +31,7 @@ router.post('/login', (req, res, next) => {
 
       if (!user) throw new Error('User not found');
 
-      return user.comparePassword(req.body.password)
+      return user.comparePassword(req.body.password);
     })
     .then(isMatch => {
       if (isMatch) {
@@ -68,7 +68,7 @@ router.get('/comments', (req, res, next) => {
     },
     {
       $sort: {
-        total: -1
+        commentsCount: -1
       }
     }
   ])
