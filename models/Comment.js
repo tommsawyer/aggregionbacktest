@@ -14,19 +14,32 @@ let commentSchema = new mongoose.Schema({
   }
 });
 
-commentSchema.statics.getTreeHeight = function(comment) {
-  comment = comment || {_id: null};
+commentSchema.statics.getTreeHeight = function() {
+  return Comment.aggregate([
+    { $match: { parentComment: null } },
 
-  return Comment.find({parentComment: comment._id})
-    .then(comments => {
-      if (comments.length === 0)
-        return [-1];
+    { $graphLookup: {
+      from: 'comments',
+      startWith: '$_id',
+      connectFromField: '_id',
+      connectToField: 'parentComment',
+      as: 'comments'
+    } },
 
-      return Promise.all(comments.map(Comment.getTreeHeight));
-    })
-    .then(heights => {
-      return Math.max.apply(null, heights) + 1;
-    });
+    { $project: {
+      height: { $size: '$comments' }
+    } },
+
+    { $sort: {
+      height: -1
+    } },
+
+    { $limit: 1 },
+
+    { $project: {
+      height: { $add: ['$height', 1] }
+    } }
+  ]);
 }
 
 const Comment = mongoose.model('Comment', commentSchema);

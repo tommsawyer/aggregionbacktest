@@ -36,7 +36,7 @@ router.post('/', passport.authenticate('jwt', {session: false}), (req, res, next
 
 router.get('/height', (req, res, next) => {
   Comment.getTreeHeight()
-    .then(height => res.json({ height }))
+    .then(height => res.json(height[0] || {height: 0}))
     .catch(next);
 });
 
